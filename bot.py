@@ -13,7 +13,7 @@ BOTっぽい何か
 
 # プログラム情報
 __author__ = 'Masaya SUZUKI'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 class CallbackResource:
