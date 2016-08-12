@@ -1,3 +1,4 @@
-falcon==0.3.0
-gunicorn==19.4.5
-requests==2.9.1
+bs4
+falcon
+gunicorn
+requests

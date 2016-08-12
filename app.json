@@ -9,15 +9,19 @@
   "success_url": "/",
   "env": {
     "LINE_CHANNEL_ID": {
-      "description": "Channel ID",
+      "description": "LINE Channel ID",
       "required": true
     },
     "LINE_CHANNEL_SECRET": {
-      "description": "Channel secret",
+      "description": "LINE Channel secret",
       "required": true
     },
     "LINE_CHANNEL_MID": {
-      "description": "Channel MID",
+      "description": "LINE Channel MID",
+      "required": true
+    },
+    "YAHOO_JAPAN_WEB_SERVICE_APPLICATION_ID": {
+      "description": "Yahoo! JAPAN Web Service Application ID",
       "required": true
     }
   },
