@@ -12,7 +12,7 @@ BOTっぽい何か
 
 # プログラム情報
 __author__ = 'Masaya SUZUKI'
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 
 class CallbackResource:
@@ -27,6 +27,15 @@ class CallbackResource:
         :param resp: レスポンス
         :param req: リクエスト
         """
+
+        # 受信データ読み取り用パターン
+        pattern = [
+            re.compile(r'.+っ+ほ'),
+            re.compile(r'[あア][ー〜]*っ*[ほホ]'),
+            re.compile(r'[ばバ][ー〜]*っ*[かカ]'),
+            re.compile(r'(ドジ|どじ)'),
+            re.compile(r'(マヌケ|まぬけ)')
+        ]
 
         # リクエストのBody
         body = req.stream.read()
@@ -51,19 +60,22 @@ class CallbackResource:
                 'eventType': '138311608800106203'
             }
 
-            # 受信データが文字以外(スタンプ等)である、または、正規表現『.+っほー.*』に当てはまらないパターンならばオウム返し
-            if req_data['content']['text'] is None or not re.match(r'.+っほー.*', req_data['content']['text']):
+            # 受信データが文字以外(スタンプ等)である、または、patternで定義されているパターンに当てはまらないならばオウム返し
+            if req_data['content']['text'] is None \
+                    or [p.search(req_data['content']['text']) is not None for p in pattern].count(True) == 0:
                 res_data['content'] = req_data['content']
-            # 受信データが正規表現『.+っほー.*』に当てはまるパターンのとき
+            # 受信データがpatternで定義されているパターンに当てはまるとき
             else:
                 res_data['content'] = {
                     'contentType': 1,
                     'toType': 1
                 }
 
-                if req_data['content']['text'] == 'あっほー':  # 受信データが『あっほー』ならば、『なんだと(# ﾟДﾟ)』を返す
+                # 受信データが暴言ならば、『なんだと(# ﾟДﾟ)』を返す
+                if 0 < [p.search(req_data['content']['text']) is not None for p in pattern[1:]].count(True):
                     res_data['content']['text'] = 'なんだと(# ﾟДﾟ)'
-                else:  # 受信データが『あっほー』以外で正規表現『.+っほー.*』に当てはまるパターンならば、『ほっほー(・∀・)』を返す
+                # 受信データが暴言でなく、かつ、正規表現『.+っほー.*』に当てはまるパターンならば、『ほっほー(・∀・)』を返す
+                else:
                     res_data['content']['text'] = 'ほっほー(・∀・)'
 
             # 送信データを文字列化
