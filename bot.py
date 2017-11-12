@@ -67,23 +67,33 @@ def handle_message(event):
     メッセージハンドラ
     :param event: イベント
     """
-    for pattern in patterns[1:]:
-        if pattern.search(event.message.text) is not None:  # 受信データが暴言ならば、『なんだと(# ﾟДﾟ)』を返す
-            text = 'なんだと(# ﾟДﾟ)'
-            break
-    else:
-        if patterns[0].search(event.message.text) is not None:
-            text = 'ほっほー(・∀・)'
-        else:  # patternで定義されているパターンに当てはまらないならば、ひらがなに変換し、単語ごとに区切る
-            text = get_hiragana(event.message.text)
+    # 返信内容
+    text = get_reply(event.message.text) or get_hiragana(event.message.text)
 
+    # 返信する
     api.reply_message(event.reply_token, TextSendMessage(text))
+
+
+def get_reply(text):
+    """
+    返信内容を取得する
+    :param text: 受信内容
+    :return: 返信内容
+    """
+    for pattern in patterns[1:]:
+        if pattern.search(text) is not None:  # 受信データが暴言ならば、『なんだと(# ﾟДﾟ)』を返す
+            return 'なんだと(# ﾟДﾟ)'
+
+    if patterns[0].search(text) is not None:
+        return 'ほっほー(・∀・)'
+    else:
+        return None
 
 
 def get_hiragana(text):
     """
-    文字列をひらがなに変換し、単語ごとに区切った上で返す
-    :param text: 文字列
+    受信内容をひらがなに変換し、単語ごとに区切った上で返す
+    :param text: 受信内容
     :return: ひらがなに変換し、単語ごとに区切った文字列
     """
     # 日本語形態素解析 (Yahoo! JAPAN Webサービス) 用のデータ
