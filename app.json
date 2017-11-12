@@ -8,24 +8,18 @@
   ],
   "success_url": "/",
   "env": {
-    "LINE_CHANNEL_ID": {
-      "description": "LINE Channel ID",
-      "required": true
-    },
     "LINE_CHANNEL_SECRET": {
-      "description": "LINE Channel secret",
-      "required": true
+      "description": "LINE Channel Secret"
     },
-    "LINE_CHANNEL_MID": {
-      "description": "LINE Channel MID",
-      "required": true
+    "LINE_CHANNEL_ACCESS_TOKEN": {
+      "description": "LINE Channel Access Token"
     },
     "YAHOO_JAPAN_WEB_SERVICE_APPLICATION_ID": {
-      "description": "Yahoo! JAPAN Web Service Application ID",
-      "required": true
+      "description": "Yahoo! JAPAN Web Service Application ID"
+    },
+    "DEBUG": {
+      "description": "Whether to debug",
+      "value": "False"
     }
-  },
-  "addons": [
-    "fixie:tricycle"
-  ]
+  }
 }

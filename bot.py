@@ -1,11 +1,13 @@
-import json
-import logging
+# coding=utf-8
 import os
 import re
 
 import bs4
-import falcon
+import flask
+import linebot
 import requests
+from linebot.exceptions import InvalidSignatureError
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 """
 BOTっぽい何か
@@ -15,107 +17,78 @@ BOTっぽい何か
 __author__ = 'Masaya SUZUKI'
 __version__ = '1.0.2'
 
+app = flask.Flask(__name__)
+app.debug = bool(os.environ['DEBUG'])
 
-class CallbackResource:
+api = linebot.LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
+handler = linebot.WebhookHandler(os.environ['LINE_CHANNEL_SECRET'])
+
+# 受信データ読み取り用パターン
+patterns = [re.compile(r'.+っ+ほ'),
+            re.compile(r'[あア][ー〜]*っ*[ほホ]'),
+            re.compile(r'[ばバ][ー〜]*っ*[かカ]'),
+            re.compile(r'(ドジ|どじ)'),
+            re.compile(r'(マヌケ|まぬけ)')]
+
+
+@app.route('/callback', methods=['POST'])
+def callback():
     """
-    コールバック用クラス
+    コールバック
     """
+    # get request body as text
+    body = flask.request.get_data(as_text=True)
+    app.logger.info('Request body:' + body)
 
-    @staticmethod
-    def on_post(req, resp):
-        """
-        POSTメソッドによってコールバックされた際の処理
-        :param resp: レスポンス
-        :param req: リクエスト
-        """
+    # handle webhook body
+    try:
+        handler.handle(body, flask.request.headers['X-Line-Signature'])
+    except InvalidSignatureError:
+        flask.abort(400)
 
-        # 受信データ読み取り用パターン
-        pattern = [re.compile(r'.+っ+ほ'),
-                   re.compile(r'[あア][ー〜]*っ*[ほホ]'),
-                   re.compile(r'[ばバ][ー〜]*っ*[かカ]'),
-                   re.compile(r'(ドジ|どじ)'),
-                   re.compile(r'(マヌケ|まぬけ)')]
-
-        # リクエストのBody
-        body = req.stream.read()
-
-        # リクエストのBodyが空ならば、HTTPBadRequestを返す
-        if not body:
-            raise falcon.HTTPBadRequest('Empty request body', "A valid JSON document is required.")
-
-        # リクエストのBodyをディクショナリ化
-        body = json.loads(body.decode('utf-8'))
-
-        logger.debug('body: {}'.format(body))
-
-        # 受信データを処理
-        for req_data in body['result']:
-            logger.debug('req_data: {}'.format(req_data))
-
-            # 送信データ
-            res_data = {'to': [req_data['content']['from']], 'toChannel': 1383378250, 'eventType': '138311608800106203'}
-
-            if req_data['content']['text']:  # 受信データが文字であるとき
-                res_data['content'] = {'contentType': 1, 'toType': 1}
-
-                # patternで定義されている各パターンに当てはまるかどうか
-                pr = [p.search(req_data['content']['text']) is not None for p in pattern]
-
-                if 0 < pr[1:].count(True):  # 受信データが暴言ならば、『なんだと(# ﾟДﾟ)』を返す
-                    res_data['content']['text'] = 'なんだと(# ﾟДﾟ)'
-                elif pr[0]:  # 受信データが暴言でなく、かつ、正規表現『.+っほー.*』に当てはまるパターンならば、『ほっほー(・∀・)』を返す
-                    res_data['content']['text'] = 'ほっほー(・∀・)'
-                else:  # patternで定義されているパターンに当てはまらないならば、係り受け解析を行い、結果を返す
-                    # 係り受け解析結果
-                    da = requests.post('http://jlp.yahooapis.jp/DAService/V1/parse',
-                                       {'appid': os.environ['YAHOO_JAPAN_WEB_SERVICE_APPLICATION_ID'],
-                                        'sentence': req_data['content']['text']})
-
-                    # 結果
-                    r = list()
-                    r.append('\t'.join(['文節番号', '修飾先の文節番号', '表記', 'よみがな', '基本形表記', '品詞', '形態素情報']))
-
-                    for c in bs4.BeautifulSoup(da.content, "html.parser").find_all('chunk'):
-                        for m in c.find_all('morphem'):
-                            r.append('\t'.join([t.text.replace('\n', '{改行}') for t in [c.find('id'),
-                                                                                       c.find('dependency'),
-                                                                                       m.find('surface'),
-                                                                                       m.find('reading'),
-                                                                                       m.find('baseform'),
-                                                                                       m.find('pos'),
-                                                                                       m.find('feature')]]))
-
-                    res_data['content']['text'] = '\n'.join(r)
-            else:  # 受信データが文字でないならば、オウム返しする
-                res_data['content'] = req_data['content']
-
-            # 送信データを文字列化
-            res_data = json.dumps(res_data)
-
-            logger.debug('res_data: {}'.format(res_data))
-
-            # レスポンスを送信
-            res = requests.post('https://trialbot-api.line.me/v1/events',
-                                data=res_data,
-                                headers={'Content-Type': 'application/json; charset=UTF-8',
-                                         'X-Line-ChannelID': os.environ['LINE_CHANNEL_ID'],
-                                         'X-Line-ChannelSecret': os.environ['LINE_CHANNEL_SECRET'],
-                                         'X-Line-Trusted-User-With-ACL': os.environ['LINE_CHANNEL_MID']},
-                                proxies={'https': os.environ['FIXIE_URL']})
-
-            logger.debug('res: {} {}'.format(res.status_code, res.reason))
-
-            # 正常に送信された旨を送信
-            resp.body = json.dumps('OK')
+    return 'OK'
 
 
-# logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-logger.addHandler(handler)
+@handler.default()
+def handle(event):
+    """
+    デフォルトハンドラ
+    :param event: イベント
+    """
+    api.reply_message(event.reply_token, event.message)
 
-# 『/callback』がコールバックされた際に、CallbackResourceを呼び出すように設定
-api = falcon.API()
-api.add_route('/callback', CallbackResource())
+
+@handler.add(MessageEvent, TextMessage)
+def handle_message(event):
+    """
+    メッセージハンドラ
+    :param event: イベント
+    """
+    for pattern in patterns[1:]:
+        if pattern.search(event.message.text) is not None:  # 受信データが暴言ならば、『なんだと(# ﾟДﾟ)』を返す
+            text = 'なんだと(# ﾟДﾟ)'
+            break
+    else:
+        if patterns[0].search(event.message.text) is not None:
+            text = 'ほっほー(・∀・)'
+        else:  # patternで定義されているパターンに当てはまらないならば、平仮名に変換する
+            # 日本語形態素解析 (Yahoo! JAPAN Webサービス) のURL
+            url = 'http://jlp.yahooapis.jp/DAService/V1/parse'
+
+            # 日本語形態素解析 (Yahoo! JAPAN Webサービス) 用のデータ
+            data = {'appid': os.environ['YAHOO_JAPAN_WEB_SERVICE_APPLICATION_ID'],
+                    'sentence': event.message.text, 'response': 'reading'}
+
+            # 平仮名のリスト
+            hiragana = list()
+
+            for word in bs4.BeautifulSoup(requests.post(url, data).content, 'html.parser').find_all('reading'):
+                hiragana.append(word.text)
+
+            text = ' '.join(hiragana)
+
+    api.reply_message(event.reply_token, TextSendMessage(text))
+
+
+if __name__ == '__main__':
+    app.run()
