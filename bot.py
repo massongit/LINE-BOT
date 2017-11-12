@@ -39,11 +39,11 @@ def callback():
     """
     コールバック
     """
-    # get request body as text
+    # リクエストメッセージボディをテキスト形式で取得
     body = flask.request.get_data(as_text=True)
     app.logger.info('Request body:' + body)
 
-    # handle webhook body
+    # WebhookをHandle
     try:
         handler.handle(body, flask.request.headers['X-Line-Signature'])
     except InvalidSignatureError:
