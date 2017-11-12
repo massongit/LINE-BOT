@@ -16,7 +16,7 @@ Python 3.6.2
 ## 機能
 * 暴言が来たら、『なんだと(# ﾟДﾟ)』と返す
 * 『{1文字以上の文字列}っぽー』と来たら、『ほっほー(・∀・)』と返す
-* 上記2つに当てはまらない文字列が来たら、文字列をひらがなに変換し、さらに単語ごとに区切った上で返す
+* 上記2つに当てはまらない文字列が来たら、文字列をひらがなに変換し、単語ごとに区切った上で返す
 
 ## Webhook URL ([LINE Messaging API](https://developers.line.me/ja/services/messaging-api/))
 https://{アプリ名}.herokuapp.com/callback

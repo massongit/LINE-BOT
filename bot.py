@@ -23,6 +23,9 @@ app.debug = bool(os.environ['DEBUG'])
 api = linebot.LineBotApi(os.environ['LINE_CHANNEL_ACCESS_TOKEN'])
 handler = linebot.WebhookHandler(os.environ['LINE_CHANNEL_SECRET'])
 
+# 日本語形態素解析 (Yahoo! JAPAN Webサービス) のURL
+yahoo_url = 'http://jlp.yahooapis.jp/DAService/V1/parse'
+
 # 受信データ読み取り用パターン
 patterns = [re.compile(r'.+っ+ほ'),
             re.compile(r'[あア][ー〜]*っ*[ほホ]'),
@@ -71,23 +74,29 @@ def handle_message(event):
     else:
         if patterns[0].search(event.message.text) is not None:
             text = 'ほっほー(・∀・)'
-        else:  # patternで定義されているパターンに当てはまらないならば、平仮名に変換する
-            # 日本語形態素解析 (Yahoo! JAPAN Webサービス) のURL
-            url = 'http://jlp.yahooapis.jp/DAService/V1/parse'
-
-            # 日本語形態素解析 (Yahoo! JAPAN Webサービス) 用のデータ
-            data = {'appid': os.environ['YAHOO_JAPAN_WEB_SERVICE_APPLICATION_ID'],
-                    'sentence': event.message.text, 'response': 'reading'}
-
-            # 平仮名のリスト
-            hiragana = list()
-
-            for word in bs4.BeautifulSoup(requests.post(url, data).content, 'html.parser').find_all('reading'):
-                hiragana.append(word.text)
-
-            text = ' '.join(hiragana)
+        else:  # patternで定義されているパターンに当てはまらないならば、ひらがなに変換し、単語ごとに区切る
+            text = get_hiragana(event.message.text)
 
     api.reply_message(event.reply_token, TextSendMessage(text))
+
+
+def get_hiragana(text):
+    """
+    文字列をひらがなに変換し、単語ごとに区切った上で返す
+    :param text: 文字列
+    :return: ひらがなに変換し、単語ごとに区切った文字列
+    """
+    # 日本語形態素解析 (Yahoo! JAPAN Webサービス) 用のデータ
+    data = {'appid': os.environ['YAHOO_JAPAN_WEB_SERVICE_APPLICATION_ID'],
+            'sentence': text, 'response': 'reading'}
+
+    # ひらがなのリスト
+    hiragana = list()
+
+    for word in bs4.BeautifulSoup(requests.post(yahoo_url, data).content, 'html.parser').find_all('reading'):
+        hiragana.append(word.text)
+
+    return ' '.join(hiragana)
 
 
 if __name__ == '__main__':
