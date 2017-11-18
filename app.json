@@ -2,11 +2,9 @@
   "name": "Botっぽい何か",
   "description": "LINE BOT made by SUZUKI",
   "website": "https://github.com/massongit/LINE-BOT",
-  "repository": "https://github.com/massongit/LINE-BOT",
   "keywords": [
     "python"
   ],
-  "success_url": "/",
   "env": {
     "LINE_CHANNEL_SECRET": {
       "description": "LINE Channel Secret"
