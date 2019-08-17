@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 beautifulsoup4 = "==4.8.0"
-gunicorn = "==19.7.1"
+gunicorn = "==19.9.0"
 line-bot-sdk = "==1.13.0"
 requests = ">=2.20.0"
 Flask = ">=1.0.0"
