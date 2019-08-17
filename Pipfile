@@ -6,9 +6,9 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-beautifulsoup4 = "==4.6.0"
+beautifulsoup4 = "==4.8.0"
 gunicorn = "==19.9.0"
-line-bot-sdk = "==1.5.0"
+line-bot-sdk = "==1.13.0"
 requests = ">=2.20.0"
 Flask = ">=1.0.0"
 
