@@ -6,7 +6,7 @@
 [Heroku](https://www.heroku.com/)で動かすことを想定したLINE BOTです。
 
 ## 開発環境
-Python 3.6.2
+Python 3.7
 
 ## 使用サービス
 * [Heroku](https://www.heroku.com/)
