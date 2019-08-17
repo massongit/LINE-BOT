@@ -91,11 +91,11 @@
         },
         "line-bot-sdk": {
             "hashes": [
-                "sha256:4c00380eb9d83a8977229023d23eab7751cad659839da5526a1bc6ae68ac3151",
-                "sha256:dbad8e4d7af80e79303c58ed22111f43bc6e4d89ed4d83d5d827204f21828e5a"
+                "sha256:4c568fd20e8a1845e1112f2fe39455a75a092e26cfea61b08fe17a116a392e1b",
+                "sha256:cd684487ab8442497c741d967f6e97ed33639942b8bf265f51afa9c837be723a"
             ],
             "index": "pypi",
-            "version": "==1.5.0"
+            "version": "==1.13.0"
         },
         "markupsafe": {
             "hashes": [
