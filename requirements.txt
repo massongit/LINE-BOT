@@ -8,7 +8,7 @@ beautifulsoup4==4.6.0
 certifi==2017.11.5        # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via flask
-flask==0.12.2
+flask==1.0
 future==0.16.0            # via line-bot-sdk
 gunicorn==19.7.1
 idna==2.6                 # via requests
@@ -18,4 +18,4 @@ line-bot-sdk==1.5.0
 markupsafe==1.0           # via jinja2
 requests==2.18.4
 urllib3==1.22             # via requests
-werkzeug==0.12.2          # via flask
+werkzeug==0.15.5          # via flask
