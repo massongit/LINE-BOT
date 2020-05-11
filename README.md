@@ -1,5 +1,5 @@
 # BOTっぽい何か ver.1.0.2
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE) [![Maintainability](https://api.codeclimate.com/v1/badges/6b6ac25e1d6752fe67ae/maintainability)](https://codeclimate.com/github/massongit/LINE-BOT/maintainability)  
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE) [![Maintainability](https://api.codeclimate.com/v1/badges/6b6ac25e1d6752fe67ae/maintainability)](https://codeclimate.com/github/massongit/LINE-BOT/maintainability) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=massongit/LINE-BOT)](https://dependabot.com)  
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 ## 概要
